@@ -113,7 +113,7 @@ string GesturesAnalyzer::PredictCurrentPosition(vector<vector<cv::Point3d>>& pRe
 
 	if( !m_anbc.predict(vecTemp))
 	{
-		printf("Failed prediction !");
+		printf("Failed prediction !\n");
 	}
 	else
 	{
@@ -147,7 +147,7 @@ UINT GesturesAnalyzer::PredictGesture(const vector<vector<cv::Point3d>>& pSample
 
 	if( !m_dtw.predict(sample))
 	{
-		printf("Failed prediction !");
+		printf("Failed prediction !\n");
 	}
 	else
 	{
@@ -181,13 +181,13 @@ HRESULT GesturesAnalyzer::DTWSaveSampleAndTrain(UINT pClasse, const vector<vecto
 	printf("Adding sample to DTW data\n");
 	if( !m_DTWTrainingData.addSample(pClasse, sample))
 	{
-		printf("Failed to add DTW sample");
+		printf("Failed to add DTW sample\n");
 		return E_FAIL;
 	}
 
 	if( !m_DTWTrainingData.saveDatasetToFile("TrainingData\\DTWTrainingData.txt"))
 	{
-		printf("Failed to save DTW data");
+		printf("Failed to save DTW data\n");
 		return E_FAIL;
 	}
 
@@ -240,7 +240,7 @@ HRESULT GesturesAnalyzer::ANBCSaveSampleAndTrain(UINT pClasse, string pName, con
 
 		if( !m_ANBCTrainingData.addSample(pClasse, vecTemp))
 		{
-			printf("Failed add ANBC sample");
+			printf("Failed add ANBC sample\n");
 			return E_FAIL;
 		}
 
@@ -254,7 +254,7 @@ HRESULT GesturesAnalyzer::ANBCSaveSampleAndTrain(UINT pClasse, string pName, con
 
 	if( !m_ANBCTrainingData.saveDatasetToFile("TrainingData\\ANBCTrainingData.txt"))
 	{
-		printf("Failed save ANBC data");
+		printf("Failed save ANBC data\n");
 		return E_FAIL;
 	}
 
@@ -274,7 +274,7 @@ HRESULT GesturesAnalyzer::HandSaveSample(UINT pClasse, string pName, const vecto
 {
 	if (!m_HandTrainingData.addSample( pClasse, pSampleVec))
 	{
-		printf("Failed add Hand sample");
+		printf("Failed add Hand sample\n");
 		return E_FAIL;
 	}
 
@@ -283,18 +283,18 @@ HRESULT GesturesAnalyzer::HandSaveSample(UINT pClasse, string pName, const vecto
 
 	if( !m_HandTrainingData.saveDatasetToFile( "TrainingData\\HandTrainingData.txt" ))
 	{
-		printf("Failed save hand data");
+		printf("Failed save hand data\n");
 		return E_FAIL;
 	}
 
 	if (!m_hand.train(m_HandTrainingData))
 	{
-		printf("Failed train Hand Classifier");
+		printf("Failed train Hand Classifier\n");
 		return E_FAIL;
 	}
 	else
 	{
-		printf("Successfully trained hand classifier");
+		printf("Successfully trained hand classifier\n");
 	}
 
 	return S_OK;
@@ -305,7 +305,7 @@ string GesturesAnalyzer::PredictHandPosition(const vector<double>& pSampleVec)
 	UINT predictedClassLabel = 0;
 	if( !m_hand.predict(pSampleVec))
 	{
-		printf("Failed prediction !");
+		printf("Failed prediction !\n");
 	}
 	else
 	{

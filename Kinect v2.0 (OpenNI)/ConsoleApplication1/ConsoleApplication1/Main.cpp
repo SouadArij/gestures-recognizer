@@ -391,8 +391,8 @@ DWORD WINAPI Main::ThreadAffichage(LPVOID lpParam)
 }
 DWORD WINAPI Main::ThreadAffichage()
 {
-	sf::RenderWindow* main_window = new sf::RenderWindow(sf::VideoMode( MAINWINDOW_WIDTH, MAINWINDOW_HEIGHT), "Sign Interpretor", sf::Style::Default, sf::ContextSettings(32));
-	engine = new Engine(main_window);
+	sf::RenderWindow* main_window = new sf::RenderWindow(sf::VideoMode( MAINWINDOW_WIDTH, MAINWINDOW_HEIGHT), "Gestures Recognizer", sf::Style::Default, sf::ContextSettings(32));
+	engine = new Engine(main_window, this);
 	engine->mainLoop();
 	return S_OK;
 }
@@ -411,9 +411,6 @@ DWORD WINAPI Main::ThreadGetAndDisplayNewColorFrame()
 
 		//Color matrice
 		cv::Mat pColorMat;
-
-		//Create openCV window
-		cv::namedWindow("Color Frame");
 	#pragma endregion
 
 	#pragma region Main Loop
@@ -429,7 +426,7 @@ DWORD WINAPI Main::ThreadGetAndDisplayNewColorFrame()
 					pVfrColorFrame = m_kinect->GetNextColorFrame();		
 					if(!ReleaseMutex( m_hKinectMutex ))
 						return E_FAIL;
-				}else{printf("ThreadGetAndDisplayNewColorFrame() : Problem waiting for m_hKinectMutex"); return E_FAIL;}
+				}else{printf("ThreadGetAndDisplayNewColorFrame() : Problem waiting for m_hKinectMutex\n"); return E_FAIL;}
 
 				ImageTreatement::GetColorMat( &pColorMat, pVfrColorFrame );
 
@@ -443,27 +440,23 @@ DWORD WINAPI Main::ThreadGetAndDisplayNewColorFrame()
 					}
 					if(!ReleaseMutex(m_hDepthTreatementIsFinishMutex))
 						return E_FAIL;
-				}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_hDepthTreatementIsFinishMutex"); return E_FAIL;}
+				}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_hDepthTreatementIsFinishMutex\n"); return E_FAIL;}
 
+				//show image
 				if(engine != NULL && engine->IsRunning())
 				{
 					cv::Mat littleMat;
 					resize(pColorMat, littleMat, cv::Size(320,240) );
-					engine->getGUI()->setRawImage(littleMat);
+					engine->getGUI()->setRawImage(littleMat, 0);
 				}
-
-				//Show image
-				imshow( "Color Frame", pColorMat );
-				cv::waitKey( 1 );
 
 				//Release
 				pColorMat.release();
 				pVfrColorFrame.release();
-			}else{printf("ThreadGetAndDisplayNewColorFrame() : Problem waiting for m_kinect->GetColorFrameHandle()");} // return E_FAIL;}
+			}else{printf("ThreadGetAndDisplayNewColorFrame() : Problem waiting for m_kinect->GetColorFrameHandle()\n");} // return E_FAIL;}
 		}
 	#pragma endregion
 
-	cv::destroyWindow( "Color Frame" );
 	return S_OK;
 }
 
@@ -504,7 +497,6 @@ DWORD WINAPI Main::ThreadGetAndDisplayNewDepthFrame()
 	
 	bool continueRecording = true;
 	//Create OpenCV Window
-	cv::namedWindow( "Depth Frame" );
 
 	bool record = false;
 	#pragma endregion
@@ -523,7 +515,7 @@ DWORD WINAPI Main::ThreadGetAndDisplayNewDepthFrame()
 					pUtfrFrame = m_kinect->GetNextDepthFrame();
 					if(!ReleaseMutex(m_hKinectMutex))
 						return E_FAIL;
-				}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_hKinectMutex"); return E_FAIL;}
+				}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_hKinectMutex\n"); return E_FAIL;}
 
 				//Set traitement event when treatment is finished
 				//printf("ThreadGetAndDisplayNewDepthFrame() : Waiting m_hDepthTreatementIsFinishMutex");
@@ -537,7 +529,7 @@ DWORD WINAPI Main::ThreadGetAndDisplayNewDepthFrame()
 					}
 					if(!ReleaseMutex(m_hDepthTreatementIsFinishMutex))
 						return E_FAIL;
-				}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_hDepthTreatementIsFinishMutex"); return E_FAIL;}
+				}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_hDepthTreatementIsFinishMutex\n"); return E_FAIL;}
 
 
 				//Get depth frame into matrice
@@ -563,17 +555,17 @@ DWORD WINAPI Main::ThreadGetAndDisplayNewDepthFrame()
 						if(WaitForSingleObject(pAnimationThread, INFINITE) == WAIT_OBJECT_0)
 							pAnimationThread = NULL;
 						else
-						{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for AnimationThread"); return E_FAIL;}
+						{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for AnimationThread\n"); return E_FAIL;}
 					}
 					else if ( hr == WAIT_TIMEOUT )
 					{
 						if(isRecording)
 							m_featuresRecorder->Perform(pMat, m_recordedSkeleton, users);
-					}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for finishEvent"); return E_FAIL;} 
+					}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for finishEvent\n"); return E_FAIL;} 
 
 					if(!ReleaseMutex(m_hFeaturesRecorderMutex))
 						return E_FAIL;	
-				}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_hFeaturesRecorderMutex"); return E_FAIL;}
+				}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_hFeaturesRecorderMutex\n"); return E_FAIL;}
 
 				if(!isRecording && pAnimationThread == NULL)
 				{
@@ -589,9 +581,15 @@ DWORD WINAPI Main::ThreadGetAndDisplayNewDepthFrame()
 						str << "Position : " << m_gesturesAnalyzer->PredictCurrentPosition(pPosition);
 						if(!ReleaseMutex(m_hGestureRecorderMutex))
 							return E_FAIL;
-					}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_hGestureRecorderMutex"); return E_FAIL;}
+					}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_hGestureRecorderMutex\n"); return E_FAIL;}
 
-					putText(pMat, str.str(), cv::Point(20,30), cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(255,255,255));
+					if(engine != NULL)
+					{
+						HANDLE mutex = engine->getGUI()->getLabelsMutex();
+						WaitForSingleObject(mutex, INFINITE);
+							engine->getGUI()->getLabels()[0]->setText(str.str());
+						ReleaseMutex(mutex);
+					}
 					pPosition.clear();
 
 					//If user is in sign position for more than 1s, start the hand analysis thread
@@ -617,7 +615,7 @@ DWORD WINAPI Main::ThreadGetAndDisplayNewDepthFrame()
 							hr = WaitForSingleObject(pProcessThread, INFINITE);
 							if(hr == WAIT_OBJECT_0)
 								pProcessThread = NULL;
-							else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for ProcessThread"); return E_FAIL; }
+							else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for ProcessThread\n"); return E_FAIL; }
 						}
 						pSignCount = 0;
 					}
@@ -664,14 +662,20 @@ DWORD WINAPI Main::ThreadGetAndDisplayNewDepthFrame()
 								pTimeGestureClassLabel = m_gesturesAnalyzer->PredictGesture(pGesture);
 								if(!ReleaseMutex(m_hGestureRecorderMutex))
 									return E_FAIL;
-							}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_hGestureRecorderMutex"); return E_FAIL;}
+							}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_hGestureRecorderMutex\n"); return E_FAIL;}
 						}
 						pGesture.clear();
 					}
 
-					std::ostringstream string;
-					string << pTimeGestureClassLabel;
-					putText(pMat, string.str(), cv::Point(20,70), cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(255,255,255));
+					if(engine != NULL)
+					{
+						HANDLE mutex = engine->getGUI()->getLabelsMutex();
+						std::ostringstream string;
+						string << "Geste :" << pTimeGestureClassLabel;
+						WaitForSingleObject(mutex, INFINITE);
+							engine->getGUI()->getLabels()[1]->setText(string.str());
+						ReleaseMutex(mutex);
+					}
 					
 					//Store last predicted class in order to compare with actual predicted class
 					pLastPredictedClass = str.str();
@@ -687,21 +691,22 @@ DWORD WINAPI Main::ThreadGetAndDisplayNewDepthFrame()
 					if(!ReleaseMutex(m_hKinectMutex))
 						return E_FAIL;
 				}
-				else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_hKinectMutex"); return E_FAIL;}
+				else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_hKinectMutex\n"); return E_FAIL;}
 
 				//Show image
-				cv::imshow("Depth Frame", pMat);
-				cv::waitKey(1);
+				if(engine != NULL && engine->IsRunning())
+				{
+					engine->getGUI()->setRawImage(pMat, 1);
+				}
 
 				//Release
 				pMat.release();
 				pUtfrFrame.release();
 				pVfrFrame.release();
-			}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_kinect->GetDepthFrameHandle()");}// return E_FAIL;}
+			}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_kinect->GetDepthFrameHandle()\n");}// return E_FAIL;}
 		}	
 	#pragma endregion
 
-	cv::destroyWindow("Depth Frame");
 	return S_OK;
 }
 
@@ -729,9 +734,6 @@ DWORD WINAPI Main::ThreadTreatementDepthFrame()
 		//Saved value of depth
 		int pLastRightHandDepth = 0;
 		int pLastLeftHandDepth = 0;
-	
-		//Create OpenCV Window
-		cv::namedWindow( "Hand Analysis" );
 
 		//Main thread loop	
 		bool continueProc;
@@ -742,7 +744,7 @@ DWORD WINAPI Main::ThreadTreatementDepthFrame()
 			continueProc = m_bContinueProcessing;
 			if(!ReleaseMutex(m_hContinueProcessingMutex))
 				return E_FAIL;
-		}else{printf("Problem waiting for m_hContinueProcessingMutex"); return E_FAIL;}
+		}else{printf("Problem waiting for m_hContinueProcessingMutex\n"); return E_FAIL;}
 
 		vector<double> sampleVec;
 		
@@ -762,7 +764,7 @@ DWORD WINAPI Main::ThreadTreatementDepthFrame()
 					m_bDepthTreatementIsFinish = !m_bDepthTreatementIsFinish;
 					if(!ReleaseMutex( m_hDepthTreatementIsFinishMutex ))
 						return E_FAIL;
-				}else{printf("ThreadTreatementDepthFrame() : Problem waiting for m_hDepthTreatementIsFinishMutex"); return E_FAIL;}
+				}else{printf("ThreadTreatementDepthFrame() : Problem waiting for m_hDepthTreatementIsFinishMutex\n"); return E_FAIL;}
 
 				pVfrFrame = m_utfrUserFrameTemp.getDepthFrame();
 
@@ -829,29 +831,40 @@ DWORD WINAPI Main::ThreadTreatementDepthFrame()
 								hr = WaitForSingleObject(m_hGestureRecorderMutex, INFINITE);
 								if(hr == WAIT_OBJECT_0)
 								{
-									m_gesturesAnalyzer->HandSaveSample( m_recordingHandClasse , m_recordingHandName , sampleVec);
+									m_gesturesAnalyzer->HandSaveSample( m_recordingClasse , m_recordingName , sampleVec);
 									if(!ReleaseMutex(m_hGestureRecorderMutex))
 										return E_FAIL;
-								}else{printf("ThreadTreatementDepthFrame() : Problem waiting for m_hGestureRecorderMutex"); return E_FAIL;}
+								}else{printf("ThreadTreatementDepthFrame() : Problem waiting for m_hGestureRecorderMutex\n"); return E_FAIL;}
 						}else if (hr == WAIT_TIMEOUT){  }
-						else{printf("ThreadTreatementDepthFrame() : Problem waiting for m_hSaveHandEvent"); return E_FAIL;}
+						else{printf("ThreadTreatementDepthFrame() : Problem waiting for m_hSaveHandEvent\n"); return E_FAIL;}
 
 						hr = WaitForSingleObject(m_hGestureRecorderMutex, INFINITE);
 						if(hr == WAIT_OBJECT_0)
 						{
-							std::ostringstream str;
-							str << m_gesturesAnalyzer->PredictHandPosition( sampleVec);
-							putText(finalDepth, str.str(), cv::Point(20,30), cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(255,255,255));
+							if(engine != NULL)
+							{
+								HANDLE mutex = engine->getGUI()->getLabelsMutex();
+								std::ostringstream str;
+								str << m_gesturesAnalyzer->PredictHandPosition( sampleVec);
+								WaitForSingleObject(mutex, INFINITE);
+									engine->getGUI()->getLabels()[2]->setText(str.str());
+								ReleaseMutex(mutex);
+							}
 							
 							if(!ReleaseMutex(m_hGestureRecorderMutex))
 								return E_FAIL;
-						}else{printf("ThreadTreatementDepthFrame() : Problem waiting for m_hGestureRecorderMutex"); return E_FAIL;}
+						}else{printf("ThreadTreatementDepthFrame() : Problem waiting for m_hGestureRecorderMutex\n"); return E_FAIL;}
 					}
 				}			
 				
 
-				imshow( "Hand Analysis", finalDepth );
-				cv::waitKey( 1 );
+				//show image
+				if(engine != NULL && engine->IsRunning())
+				{
+					cv::Mat littleMat;
+					resize(finalDepth, littleMat, cv::Size(320,240) );
+					engine->getGUI()->setRawImage(littleMat, 2);
+				}
 
 				sampleVec.clear();
 				depthTemp.release();
@@ -870,7 +883,7 @@ DWORD WINAPI Main::ThreadTreatementDepthFrame()
 					continueProc = m_bContinueProcessing;
 					if(!ReleaseMutex(m_hContinueProcessingMutex))
 						return E_FAIL;
-				}else{printf("ThreadTreatementDepthFrame() : Problem waiting m_hContinueProcessingMutex"); return E_FAIL;}
+				}else{printf("ThreadTreatementDepthFrame() : Problem waiting m_hContinueProcessingMutex\n"); return E_FAIL;}
 
 				hr = WaitForSingleObject(m_hDepthTreatementIsFinishMutex, INFINITE);
 				if(hr == WAIT_OBJECT_0)
@@ -878,13 +891,12 @@ DWORD WINAPI Main::ThreadTreatementDepthFrame()
 					m_bDepthTreatementIsFinish = !m_bDepthTreatementIsFinish;
 					if(!ReleaseMutex(m_hDepthTreatementIsFinishMutex))
 						return E_FAIL;
-				}else{printf("ThreadTreatementDepthFrame() : Problem waiting for m_hDepthTreatementIsFinishMutex"); return E_FAIL;}
+				}else{printf("ThreadTreatementDepthFrame() : Problem waiting for m_hDepthTreatementIsFinishMutex\n"); return E_FAIL;}
 
-			}else{printf("ThreadTreatementDepthFrame() : Problem waiting m_hDepthTreatement"); return E_FAIL;}
+			}else{printf("ThreadTreatementDepthFrame() : Problem waiting m_hDepthTreatement\n"); return E_FAIL;}
 		}
 	#pragma endregion
 
-	cv::destroyWindow("Hand Analysis");
 	return S_OK;
 }
 
@@ -918,7 +930,7 @@ DWORD WINAPI Main::ThreadAnimation()
 			ut = m_kinect->GetUserTracker();
 			if(!ReleaseMutex(m_hKinectMutex))
 				return E_FAIL;
-		}else{printf("ThreadAnimation() : Problem waiting for m_hKinectMutex"); return E_FAIL;}
+		}else{printf("ThreadAnimation() : Problem waiting for m_hKinectMutex\n"); return E_FAIL;}
 	#pragma endregion
 
 	#pragma region Main Loop
@@ -943,7 +955,7 @@ DWORD WINAPI Main::ThreadAnimation()
 				continueProc = m_bDisplayAnimation;
 				if(!ReleaseMutex(m_hDisplayAnimationMutex))
 					return E_FAIL;
-			}else{printf("ThreadAnimation() : Problem waiting for m_hDisplayAnimationMutex"); return E_FAIL; }
+			}else{printf("ThreadAnimation() : Problem waiting for m_hDisplayAnimationMutex\n"); return E_FAIL; }
 		}
 	#pragma endregion
 
@@ -968,7 +980,7 @@ DWORD WINAPI Main::ThreadAnimation()
 			m_recordedSkeleton.clear();
 			if(!ReleaseMutex(m_hGestureRecorderMutex))
 				return E_FAIL;
-		}else{printf("ThreadAnimation() : Problem waiting for m_hGestureRecorderMutex"); return E_FAIL;}
+		}else{printf("ThreadAnimation() : Problem waiting for m_hGestureRecorderMutex\n"); return E_FAIL;}
 	#pragma endregion
 
 	cv::destroyWindow("Skeleton recording");
@@ -979,7 +991,7 @@ DWORD WINAPI Main::ThreadAnimation()
 		m_bDisplayAnimation = true;
 		if(!ReleaseMutex(m_hDisplayAnimationMutex))
 			return E_FAIL;
-	}else{printf("ThreadAnimation() : Problem waiting for m_hDisplayAnimationMutex"); return E_FAIL;}
+	}else{printf("ThreadAnimation() : Problem waiting for m_hDisplayAnimationMutex\n"); return E_FAIL;}
 
 	hr = WaitForSingleObject(m_hRecordingMutex, INFINITE);
 	if(hr == WAIT_OBJECT_0)
@@ -987,7 +999,7 @@ DWORD WINAPI Main::ThreadAnimation()
 		m_bRecording = false;
 		if(!ReleaseMutex(m_hRecordingMutex))
 			return E_FAIL;
-	}else{printf("ThreadAnimation() : Problem waiting for m_hRecordingMutex"); return E_FAIL;}
+	}else{printf("ThreadAnimation() : Problem waiting for m_hRecordingMutex\n"); return E_FAIL;}
 
 	return S_OK;
 }
@@ -1018,7 +1030,7 @@ DWORD WINAPI Main::KeyboardListener()
 							}
 							if(!ReleaseMutex(m_hRecordingMutex))
 								return E_FAIL;
-						}else{printf("KeyboardListener() : Problem waiting for m_hRecordingMutex"); return E_FAIL; }
+						}else{printf("KeyboardListener() : Problem waiting for m_hRecordingMutex\n"); return E_FAIL; }
 
 						cout << "Classe : " ;
 						cin >> m_recordingClasse;
@@ -1043,7 +1055,7 @@ DWORD WINAPI Main::KeyboardListener()
 							m_featuresRecorder->Start(Timeout);
 							if(!ReleaseMutex(m_hFeaturesRecorderMutex))
 								return E_FAIL;
-						}else{printf("KeyboardListener() : Problem waiting for m_hFeaturesRecorderMutex"); return E_FAIL; }
+						}else{printf("KeyboardListener() : Problem waiting for m_hFeaturesRecorderMutex\n"); return E_FAIL; }
 					}
 					break;
 				case 's':
@@ -1053,7 +1065,7 @@ DWORD WINAPI Main::KeyboardListener()
 						m_bDisplayAnimation = false;
 						if(!ReleaseMutex(m_hDisplayAnimationMutex))
 							return E_FAIL;
-					}else{printf("KeyboardListener() : Problem waiting for m_hDisplayAnimationMutex"); return E_FAIL;}
+					}else{printf("KeyboardListener() : Problem waiting for m_hDisplayAnimationMutex\n"); return E_FAIL;}
 					break;
 				case 'p':
 					hr = WaitForSingleObject(m_hFeaturesRecorderMutex, INFINITE);
@@ -1062,10 +1074,10 @@ DWORD WINAPI Main::KeyboardListener()
 						m_featuresRecorder->Stop();
 						if(!ReleaseMutex(m_hFeaturesRecorderMutex))
 							return E_FAIL;
-					}else{printf("KeyboardListener() : Problem waiting for m_hFeaturesRecorderMutex"); return E_FAIL; }
+					}else{printf("KeyboardListener() : Problem waiting for m_hFeaturesRecorderMutex\n"); return E_FAIL; }
 					break;
 				case 'n':
-					SetEvent(m_hSaveHandEvent);
+					
 					break;
 				case 'b':
 					cout << "Classe : " ;
@@ -1089,4 +1101,85 @@ DWORD WINAPI Main::KeyboardListener()
 		}
 	}
 	return S_OK;
+}
+
+void Main::OnGetRecordInfoButton(Bouton pButton)
+{
+	printf("Classe %d // Nom %s // Timeout %d \n",  m_recordingClasse, m_recordingName.c_str(), m_timeout);
+}
+
+void Main::OnRecordGestureButton(Bouton pButton)
+{
+	HRESULT hr;
+	hr = WaitForSingleObject(m_hRecordingMutex, INFINITE);
+	if(hr == WAIT_OBJECT_0)
+	{
+		if(!m_bRecording)
+		{
+			m_bRecording = !m_bRecording;
+			printf("Vous allez enregistrer un geste pour la classe %d avec le nom %s et un timeout de %d\n",  m_recordingClasse, m_recordingName.c_str(), m_timeout);
+			m_recordingType = "gesture";
+
+			hr = WaitForSingleObject(m_hFeaturesRecorderMutex, INFINITE);
+			if(hr == WAIT_OBJECT_0)
+			{
+				m_featuresRecorder->Start(m_timeout);
+				if(!ReleaseMutex(m_hFeaturesRecorderMutex))
+					return ;
+			}else{printf("KeyboardListener() : Problem waiting for m_hFeaturesRecorderMutex\n"); return ; }
+		}
+		if(!ReleaseMutex(m_hRecordingMutex))
+			return ;
+	}else{printf("KeyboardListener() : Problem waiting for m_hRecordingMutex\n"); return ; }
+}
+
+void Main::OnRecordPositionButton( Bouton pButton )
+{
+	HRESULT hr;
+	hr = WaitForSingleObject(m_hRecordingMutex, INFINITE);
+	if(hr == WAIT_OBJECT_0)
+	{
+		if(!m_bRecording)
+		{
+			m_bRecording = !m_bRecording;
+			printf("Vous allez enregistrer une position pour la classe %d avec le nom %s et un timeout de %d\n",  m_recordingClasse, m_recordingName.c_str(), m_timeout);
+			m_recordingType = "position";
+
+			hr = WaitForSingleObject(m_hFeaturesRecorderMutex, INFINITE);
+			if(hr == WAIT_OBJECT_0)
+			{
+				m_featuresRecorder->Start(m_timeout);
+				if(!ReleaseMutex(m_hFeaturesRecorderMutex))
+					return ;
+			}else{printf("KeyboardListener() : Problem waiting for m_hFeaturesRecorderMutex\n"); return ; }
+		}
+		if(!ReleaseMutex(m_hRecordingMutex))
+			return ;
+	}else{printf("KeyboardListener() : Problem waiting for m_hRecordingMutex\n"); return ; }
+}
+
+void Main::OnRecordHandPositionButton( Bouton pButton )
+{
+	SetEvent(m_hSaveHandEvent);
+}
+
+void Main::OnSendClassTextButton(Bouton pButton)
+{
+	std::vector<GUIObject*> objects = pButton.getAttachedObject();
+	int x = atoi(objects[0]->getTexte().getString().toAnsiString().c_str());
+	m_recordingClasse = x;
+}
+
+void Main::OnSendNameTextButton(Bouton pButton)
+{
+	std::vector<GUIObject*> objects = pButton.getAttachedObject();
+	string str = objects[0]->getTexte().getString().toAnsiString();
+	m_recordingName = str;
+}
+
+void Main::OnSendTimeoutButton(Bouton pButton)
+{
+	std::vector<GUIObject*> objects = pButton.getAttachedObject();
+	int x = atoi(objects[0]->getTexte().getString().toAnsiString().c_str());
+	m_timeout = x;
 }

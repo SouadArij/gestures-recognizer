@@ -28,23 +28,14 @@
     <Filter Include="Fichiers de ressources\ressources">
       <UniqueIdentifier>{96bb1197-4ba9-498e-b1cf-1b8c3a9932a5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers sources\MainApp">
+      <UniqueIdentifier>{abffea3a-5e14-4859-bdeb-f1dac93587c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\MainApp">
+      <UniqueIdentifier>{c8772973-7ce5-4be6-b2ba-cef5a44bd003}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="Kinect.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="ImageTreatement.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="TimerRecord.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
     <ClInclude Include="GRT\ClassificationModules\AdaBoost\AdaBoost.h">
       <Filter>Fichiers sources\GRT</Filter>
     </ClInclude>
@@ -405,31 +396,10 @@
     <ClInclude Include="GRT\Util\WarningLog.h">
       <Filter>Fichiers sources\GRT</Filter>
     </ClInclude>
-    <ClInclude Include="Main.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="Recorder.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="GesturesAnalyzer.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="GUI\CallbackCallee.h">
-      <Filter>Fichiers d%27en-tête\GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="GUI\CallbackInterface.h">
-      <Filter>Fichiers d%27en-tête\GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="GUI\Connection.h">
-      <Filter>Fichiers d%27en-tête\GUI</Filter>
-    </ClInclude>
     <ClInclude Include="GUI\Engine.h">
       <Filter>Fichiers d%27en-tête\GUI</Filter>
     </ClInclude>
     <ClInclude Include="GUI\GUI.h">
-      <Filter>Fichiers d%27en-tête\GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="GUI\log.h">
       <Filter>Fichiers d%27en-tête\GUI</Filter>
     </ClInclude>
     <ClInclude Include="GUI\TextField.h">
@@ -438,23 +408,41 @@
     <ClInclude Include="GUI\Bouton.h">
       <Filter>Fichiers d%27en-tête\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\CallbackCaller.h">
-      <Filter>Fichiers d%27en-tête\GUI</Filter>
-    </ClInclude>
     <ClInclude Include="GRT\DataStructures\LabelledContinuousTimeSeriesClassificationData.h">
       <Filter>Fichiers sources\GRT</Filter>
     </ClInclude>
+    <ClInclude Include="GUI\GUIObject.h">
+      <Filter>Fichiers d%27en-tête\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GesturesAnalyzer.h">
+      <Filter>Fichiers d%27en-tête\MainApp</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageTreatement.h">
+      <Filter>Fichiers d%27en-tête\MainApp</Filter>
+    </ClInclude>
+    <ClInclude Include="Kinect.h">
+      <Filter>Fichiers d%27en-tête\MainApp</Filter>
+    </ClInclude>
+    <ClInclude Include="Main.h">
+      <Filter>Fichiers d%27en-tête\MainApp</Filter>
+    </ClInclude>
+    <ClInclude Include="Recorder.h">
+      <Filter>Fichiers d%27en-tête\MainApp</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Fichiers d%27en-tête\MainApp</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Fichiers d%27en-tête\MainApp</Filter>
+    </ClInclude>
+    <ClInclude Include="TimerRecord.h">
+      <Filter>Fichiers d%27en-tête\MainApp</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Label.h">
+      <Filter>Fichiers d%27en-tête\GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Kinect.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
-    <ClCompile Include="ImageTreatement.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
-    <ClCompile Include="TimerRecord.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
     <ClCompile Include="GRT\ClassificationModules\AdaBoost\AdaBoost.cpp">
       <Filter>Fichiers sources\GRT</Filter>
     </ClCompile>
@@ -722,22 +710,7 @@
     <ClCompile Include="GRT\Util\WarningLog.cpp">
       <Filter>Fichiers sources\GRT</Filter>
     </ClCompile>
-    <ClCompile Include="Main.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
-    <ClCompile Include="Recorder.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
-    <ClCompile Include="GesturesAnalyzer.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
     <ClCompile Include="GUI\Bouton.cpp">
-      <Filter>Fichiers sources\GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="GUI\CallbackCallee.cpp">
-      <Filter>Fichiers sources\GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="GUI\connection.cpp">
       <Filter>Fichiers sources\GUI</Filter>
     </ClCompile>
     <ClCompile Include="GUI\Engine.cpp">
@@ -746,17 +719,35 @@
     <ClCompile Include="GUI\GUI.cpp">
       <Filter>Fichiers sources\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="GUI\log.cpp">
-      <Filter>Fichiers sources\GUI</Filter>
-    </ClCompile>
     <ClCompile Include="GUI\TextField.cpp">
-      <Filter>Fichiers sources\GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="GUI\writeLog.cpp">
       <Filter>Fichiers sources\GUI</Filter>
     </ClCompile>
     <ClCompile Include="GRT\DataStructures\LabelledContinuousTimeSeriesClassificationData.cpp">
       <Filter>Fichiers sources\GRT</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\GUIObject.cpp">
+      <Filter>Fichiers sources\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GesturesAnalyzer.cpp">
+      <Filter>Fichiers sources\MainApp</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageTreatement.cpp">
+      <Filter>Fichiers sources\MainApp</Filter>
+    </ClCompile>
+    <ClCompile Include="Kinect.cpp">
+      <Filter>Fichiers sources\MainApp</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Fichiers sources\MainApp</Filter>
+    </ClCompile>
+    <ClCompile Include="Recorder.cpp">
+      <Filter>Fichiers sources\MainApp</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerRecord.cpp">
+      <Filter>Fichiers sources\MainApp</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Label.cpp">
+      <Filter>Fichiers sources\GUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

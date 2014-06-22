@@ -215,13 +215,10 @@
     <ClInclude Include="GRT\Util\Util.h" />
     <ClInclude Include="GRT\Util\WarningLog.h" />
     <ClInclude Include="GUI\Bouton.h" />
-    <ClInclude Include="GUI\CallbackCallee.h" />
-    <ClInclude Include="GUI\CallbackCaller.h" />
-    <ClInclude Include="GUI\CallbackInterface.h" />
-    <ClInclude Include="GUI\Connection.h" />
     <ClInclude Include="GUI\Engine.h" />
     <ClInclude Include="GUI\GUI.h" />
-    <ClInclude Include="GUI\log.h" />
+    <ClInclude Include="GUI\GUIObject.h" />
+    <ClInclude Include="GUI\Label.h" />
     <ClInclude Include="GUI\TextField.h" />
     <ClInclude Include="ImageTreatement.h" />
     <ClInclude Include="Kinect.h" />
@@ -234,13 +231,11 @@
   <ItemGroup>
     <ClCompile Include="GRT\DataStructures\LabelledContinuousTimeSeriesClassificationData.cpp" />
     <ClCompile Include="GUI\Bouton.cpp" />
-    <ClCompile Include="GUI\CallbackCallee.cpp" />
-    <ClCompile Include="GUI\connection.cpp" />
     <ClCompile Include="GUI\Engine.cpp" />
     <ClCompile Include="GUI\GUI.cpp" />
-    <ClCompile Include="GUI\log.cpp" />
+    <ClCompile Include="GUI\GUIObject.cpp" />
+    <ClCompile Include="GUI\Label.cpp" />
     <ClCompile Include="GUI\TextField.cpp" />
-    <ClCompile Include="GUI\writeLog.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="GesturesAnalyzer.cpp" />
     <ClCompile Include="GRT\ClassificationModules\AdaBoost\AdaBoost.cpp" />

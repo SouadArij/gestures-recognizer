@@ -1,13 +1,13 @@
 #pragma once
-#include "Kinect.h"
-#include "ImageTreatement.h"
-#include "TimerRecord.h"
-#include "GesturesAnalyzer.h"
 #include <iostream>
 #include <time.h>
 #include <conio.h>
 #include <opencv2\highgui\highgui.hpp>
 #include <opencv2\ml\ml.hpp>
+#include "Kinect.h"
+#include "ImageTreatement.h"
+#include "TimerRecord.h"
+#include "GesturesAnalyzer.h"
 #include "GRT\GRT.h"
 #include "Recorder.h"
 #include "GUI\Engine.h"
@@ -22,7 +22,15 @@ public:
 	static DWORD WINAPI ThreadTreatementDepthFrame(LPVOID lpParam);
 	static DWORD WINAPI ThreadAnimation(LPVOID lpParam);
 	static DWORD WINAPI KeyboardListener(LPVOID lpParam);
-	static DWORD WINAPI Main::ThreadAffichage(LPVOID lpParam);
+	static DWORD WINAPI ThreadAffichage(LPVOID lpParam);
+	void OnRecordGestureButton( Bouton pButton );
+	void OnSendClassTextButton( Bouton pButton );
+	void OnRecordPositionButton( Bouton pButton );
+	void OnRecordHandPositionButton( Bouton pButton );
+	void OnSendNameTextButton(Bouton pButton);
+	void OnSendTimeoutButton(Bouton pButton);
+	void OnGetRecordInfoButton(Bouton pButton);
+
 	HRESULT Run();
 	void Main::SaveCode();
 
@@ -32,7 +40,7 @@ private:
 	DWORD WINAPI ThreadTreatementDepthFrame();
 	DWORD WINAPI ThreadAnimation();
 	DWORD WINAPI KeyboardListener();
-	DWORD WINAPI Main::ThreadAffichage();
+	DWORD WINAPI ThreadAffichage();
 
 	HANDLE m_hDisplayAnimationMutex;
 	bool m_bDisplayAnimation;
@@ -64,7 +72,9 @@ private:
 
 	vector<vector<cv::Point3d>> m_recordedSkeleton;
 
-	int m_sliderDebut, m_sliderFin, m_sliderMax;
+	int m_sliderDebut;
+	int m_sliderFin;
+	int m_sliderMax;
 
 	int m_recordingClasse;
 	string m_recordingName;
@@ -72,6 +82,8 @@ private:
 
 	int m_recordingHandClasse;
 	string m_recordingHandName;
+
+	int m_timeout;
 
 	HANDLE m_hFeaturesRecorderMutex;
 	FeaturesRecorder* m_featuresRecorder;

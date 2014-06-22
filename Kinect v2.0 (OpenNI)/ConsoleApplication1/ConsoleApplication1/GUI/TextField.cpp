@@ -10,20 +10,14 @@ TextField::TextField(float px,float py,float pwidth, float pheight){
 	this->str.clear();
 	int charsize = pheight/4;
 	if (charsize < 10) charsize = 10;
-	this->txt.setCharacterSize(charsize);
-	if(!this->font.loadFromFile("resources/sansation.ttf")) write_text_to_log_file("echec font load");
-	this->txt.setFont(font);
+	m_texte.setCharacterSize(charsize);
+	if(!this->font.loadFromFile("resources/sansation.ttf")) printf("echec font load\n");
+	m_texte.setFont(font);
 	float x = px + pwidth - PADDING_RIGHT;
-	float y = py + pheight- this->txt.getCharacterSize()*0.25;
+	float y = py + pheight- m_texte.getCharacterSize()*0.25;
 	fixPosition();
-	this->txt.setColor(sf::Color::Black);
-	this->txt.setString(this->str);
-}
-
-void TextField::cb_func(){ //callback - renvoie le contenu
-	write_text_to_log_file("callback de textfield");
-	write_text_to_log_file(this->str);
-	//SEND TO ???
+	m_texte.setColor(sf::Color::Black);
+	m_texte.setString(this->str);
 }
 
 void TextField::clearStr(){
@@ -38,10 +32,10 @@ void TextField::addChar(std::string toAdd){
 	tmp.append(toAdd);
 	this->str.clear();
 	this->str = tmp;
-	this->txt.setString(this->str);
+	m_texte.setString(this->str);
 	//mettre à jour la position du texte en X
 	fixPosition();
-	write_text_to_log_file(tmp);
+	//printf(m_texte.getString().toAnsiString().c_str());
 	return;
 }
 
@@ -52,8 +46,7 @@ void TextField::removeLastchar(){
 	this->str.clear();
 	tmp.pop_back();
 	this->str = tmp;
-	this->txt.setString(this->str);
-	write_text_to_log_file(tmp);
+	m_texte.setString(this->str);
 	fixPosition();
 	return;
 }
@@ -78,9 +71,9 @@ void TextField::setFocus(bool b){
 }
 
 void TextField::fixPosition(){
-	size_t charsize = this->txt.getCharacterSize();
+	size_t charsize = m_texte.getCharacterSize();
 	sf::FloatRect lb = this->textArea.getLocalBounds();
-	int s_size = this->txt.getString().getSize();
+	int s_size = m_texte.getString().getSize();
 	/*size_t maxHeight,height;
 
 	for(size_t i =0; i < this->str.getSize() ; ++i){
@@ -89,8 +82,8 @@ void TextField::fixPosition(){
 		height = CurrentGlyph.bounds.height;
 		if (maxHeight < height) maxHeight = height;
      }*/
-	this->txt.setOrigin(lb.left + lb.width/2.0f, lb.top + lb.height /2.0f);
-	this->txt.setPosition(sf::Vector2f(this->textArea.getPosition().x + lb.width/1.8f,
+	m_texte.setOrigin(lb.left + lb.width/2.0f, lb.top + lb.height /2.0f);
+	m_texte.setPosition(sf::Vector2f(this->textArea.getPosition().x + lb.width/1.8f,
 									this->textArea.getPosition().y + lb.height/1.2f));
 
 }

@@ -19,8 +19,7 @@
 
 #include "Bouton.h"
 #include "TextField.h"
-
-
+#include "Label.h"
 
 #define VIDEO_WIDTH 320
 #define VIDEO_HEIGHT 240
@@ -35,24 +34,27 @@ class GUI {
 private:
 	std::vector<Bouton*> buttons;
 	std::vector<TextField*> textfields;
-	std::vector<sf::Text*> labels;
+	std::vector<Label*> labels;
 	sf::Image sf_img;
-	sf::Texture* img_tex;
-	sf::RectangleShape* videoFrame;
-	cv::Mat raw_img;
+	std::vector<sf::Texture*> m_Textures;
+	std::vector<sf::RectangleShape*> m_RectanglesShapes;
+	std::vector<cv::Mat> m_ImageMat;
+	HANDLE m_labelsMutex;
 
 public:
 	GUI();
 	void addButton(Bouton* toAdd);
 	void addTextField(TextField* toAdd);
-	void addLabel(sf::Text* toAdd);
+	void addLabel(Label* toAdd);
 	void drawGUI(sf::RenderWindow *frame);
 	void mouseAction(float x,float y);
 	void keyboardInput(sf::String input);
 	void deleteInput();
-	void setRawImage(cv::Mat rawImage);
-	void imgRefresh(); // prendra un flux de data en param
+	void setRawImage(cv::Mat rawImage, int iterator);
+	void imgRefresh(int iterator); // prendra un flux de data en param
 	std::vector<Bouton*> getButtons(){return this->buttons;}
+	std::vector<Label*> getLabels(){ return labels; }
+	HANDLE getLabelsMutex() { return m_labelsMutex; }
 	~GUI();
 
 };
