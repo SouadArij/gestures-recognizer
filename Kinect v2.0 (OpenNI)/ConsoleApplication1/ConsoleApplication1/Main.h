@@ -17,12 +17,14 @@ class Main
 public:
 	Main(void);
 	~Main(void);
+
 	static DWORD WINAPI ThreadGetAndDisplayNewColorFrame(LPVOID lpParam);
 	static DWORD WINAPI ThreadGetAndDisplayNewDepthFrame(LPVOID lpParam);
 	static DWORD WINAPI ThreadTreatementDepthFrame(LPVOID lpParam);
 	static DWORD WINAPI ThreadAnimation(LPVOID lpParam);
 	static DWORD WINAPI KeyboardListener(LPVOID lpParam);
 	static DWORD WINAPI ThreadAffichage(LPVOID lpParam);
+
 	void OnRecordGestureButton( Bouton pButton );
 	void OnSendClassTextButton( Bouton pButton );
 	void OnRecordPositionButton( Bouton pButton );
@@ -30,6 +32,9 @@ public:
 	void OnSendNameTextButton(Bouton pButton);
 	void OnSendTimeoutButton(Bouton pButton);
 	void OnGetRecordInfoButton(Bouton pButton);
+	void OnStopRecordButton(Bouton pButton);
+	void OnSaveSampleButton(Bouton pButton);
+	void Main::OnChangeMainFrameButton(Bouton pButton);
 
 	HRESULT Run();
 	void Main::SaveCode();
@@ -90,5 +95,7 @@ private:
 
 	HANDLE m_hSaveHandEvent;
 
-	Engine* engine;
+	Engine* m_engine;
+
+	bool m_bPriorityFrameTab[3];
 };

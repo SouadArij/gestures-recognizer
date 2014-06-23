@@ -23,13 +23,18 @@ HRESULT GesturesAnalyzer::Init()
 	m_anbc.enableScaling( true );
 	m_anbc.enableNullRejection( true );
 	m_anbc.setNullRejectionCoeff( 1 );
+    
+    m_dtw.addPreProcessingModule( GRT::MovingAverageFilter( 5, m_DTWTrainingData.getNumDimensions() ) );
+    m_dtw.setClassifier( GRT::DTW() );
+	//m_dtw.getClassifier()->enableNullRejection( true );
 
 	//m_dtw.enableScaling(true);
-	//m_dtw.enableZNormalization(true);
+	////m_dtw.enableZNormalization(true);
 	//m_dtw.enableNullRejection( true );
-	m_dtw.enableTrimTrainingData(true,0.1,90);
+	//m_dtw.enableTrimTrainingData(true,0.1,90);
 	//m_dtw.setOffsetTimeseriesUsingFirstSample( true );
 	
+	GRT::LabelledTimeSeriesClassificationData testData = m_DTWTrainingData.partition( 80, true );
 	
 	if( !m_anbc.train( m_ANBCTrainingData ) ){
 		std::cout << "Failed to train ANBC classifier!\n";
@@ -40,6 +45,32 @@ HRESULT GesturesAnalyzer::Init()
 		std::cout << "Failed to train DTW classifier!\n";
 		return E_FAIL;
 	} 
+
+	double accuracy = 0;
+    for(UINT i=0; i<testData.getNumSamples(); i++){
+        //Get the i'th test sample - this is a timeseries
+        UINT classLabel = testData[i].getClassLabel();
+        GRT::MatrixDouble timeseries = testData[i].getData();
+        
+        //Perform a prediction using the classifier
+        if( !m_dtw.predict( timeseries ) ){
+            cout << "Failed to perform prediction for test sampel: " << i <<"\n";
+            return EXIT_FAILURE;
+        }
+        
+        //Get the predicted class label
+        UINT predictedClassLabel = m_dtw.getPredictedClassLabel();
+        double maximumLikelihood = m_dtw.getMaximumLikelihood();
+        GRT::VectorDouble classLikelihoods = m_dtw.getClassLikelihoods();
+        GRT::VectorDouble classDistances = m_dtw.getClassDistances();
+        
+        //Update the accuracy
+        if( classLabel == predictedClassLabel ) accuracy++;
+        
+        cout << "TestSample: " << i <<  "\tClassLabel: " << classLabel << "\tPredictedClassLabel: " << predictedClassLabel << "\tMaximumLikelihood: " << maximumLikelihood << endl;
+    }
+    
+    cout << "Test Accuracy: " << accuracy/double(testData.getNumSamples())*100.0 << "%" << endl;
 
 	if( !m_hand.train(m_HandTrainingData))
 	{

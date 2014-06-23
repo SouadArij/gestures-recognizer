@@ -25,6 +25,9 @@ Main::Main():m_bDepthTreatementIsFinish(true),
 	m_hContinueProcessingMutex = CreateMutex(NULL, FALSE, NULL);
 	m_hDisplayAnimationMutex = CreateMutex(NULL, FALSE, NULL);
 	m_hSaveHandEvent = CreateEvent(NULL, false, false, NULL);
+	m_bPriorityFrameTab[0] = false;
+	m_bPriorityFrameTab[1] = true;
+	m_bPriorityFrameTab[2] = false;
 }
 
 Main::~Main()
@@ -392,8 +395,8 @@ DWORD WINAPI Main::ThreadAffichage(LPVOID lpParam)
 DWORD WINAPI Main::ThreadAffichage()
 {
 	sf::RenderWindow* main_window = new sf::RenderWindow(sf::VideoMode( MAINWINDOW_WIDTH, MAINWINDOW_HEIGHT), "Gestures Recognizer", sf::Style::Default, sf::ContextSettings(32));
-	engine = new Engine(main_window, this);
-	engine->mainLoop();
+	m_engine = new Engine(main_window, this);
+	m_engine->mainLoop();
 	return S_OK;
 }
 
@@ -443,11 +446,26 @@ DWORD WINAPI Main::ThreadGetAndDisplayNewColorFrame()
 				}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_hDepthTreatementIsFinishMutex\n"); return E_FAIL;}
 
 				//show image
-				if(engine != NULL && engine->IsRunning())
+				if(m_engine != NULL && m_engine->IsRunning())
 				{
-					cv::Mat littleMat;
-					resize(pColorMat, littleMat, cv::Size(320,240) );
-					engine->getGUI()->setRawImage(littleMat, 0);
+					for( int i =0; i < 3; i++)
+					{
+						if(m_bPriorityFrameTab[i])
+						{
+							switch(i)
+							{
+								case 0:
+									m_engine->getGUI()->setRawImage(pColorMat, 1);
+									break;
+								case 1:
+									m_engine->getGUI()->setRawImage(pColorMat, 0);
+									break;
+								case 2:
+									m_engine->getGUI()->setRawImage(pColorMat, 2);
+									break;
+							}
+						}
+					}
 				}
 
 				//Release
@@ -583,11 +601,11 @@ DWORD WINAPI Main::ThreadGetAndDisplayNewDepthFrame()
 							return E_FAIL;
 					}else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_hGestureRecorderMutex\n"); return E_FAIL;}
 
-					if(engine != NULL)
+					if(m_engine != NULL)
 					{
-						HANDLE mutex = engine->getGUI()->getLabelsMutex();
+						HANDLE mutex = m_engine->getGUI()->getLabelsMutex();
 						WaitForSingleObject(mutex, INFINITE);
-							engine->getGUI()->getLabels()[0]->setText(str.str());
+							m_engine->getGUI()->getLabels()[0]->setText(str.str());
 						ReleaseMutex(mutex);
 					}
 					pPosition.clear();
@@ -667,13 +685,13 @@ DWORD WINAPI Main::ThreadGetAndDisplayNewDepthFrame()
 						pGesture.clear();
 					}
 
-					if(engine != NULL)
+					if(m_engine != NULL)
 					{
-						HANDLE mutex = engine->getGUI()->getLabelsMutex();
+						HANDLE mutex = m_engine->getGUI()->getLabelsMutex();
 						std::ostringstream string;
 						string << "Geste :" << pTimeGestureClassLabel;
 						WaitForSingleObject(mutex, INFINITE);
-							engine->getGUI()->getLabels()[1]->setText(string.str());
+							m_engine->getGUI()->getLabels()[1]->setText(string.str());
 						ReleaseMutex(mutex);
 					}
 					
@@ -694,9 +712,29 @@ DWORD WINAPI Main::ThreadGetAndDisplayNewDepthFrame()
 				else{printf("ThreadGetAndDisplayNewDepthFrame() : Problem waiting for m_hKinectMutex\n"); return E_FAIL;}
 
 				//Show image
-				if(engine != NULL && engine->IsRunning())
+				if(m_engine != NULL && m_engine->IsRunning())
 				{
-					engine->getGUI()->setRawImage(pMat, 1);
+					if(m_engine != NULL && m_engine->IsRunning())
+				{
+					for( int i =0; i < 3; i++)
+					{
+						if(m_bPriorityFrameTab[i])
+						{
+							switch(i)
+							{
+								case 0:
+									m_engine->getGUI()->setRawImage(pMat, 2);
+									break;
+								case 1:
+									m_engine->getGUI()->setRawImage(pMat, 1);
+									break;
+								case 2:
+									m_engine->getGUI()->setRawImage(pMat, 0);
+									break;
+							}
+						}
+					}
+				}
 				}
 
 				//Release
@@ -841,13 +879,13 @@ DWORD WINAPI Main::ThreadTreatementDepthFrame()
 						hr = WaitForSingleObject(m_hGestureRecorderMutex, INFINITE);
 						if(hr == WAIT_OBJECT_0)
 						{
-							if(engine != NULL)
+							if(m_engine != NULL)
 							{
-								HANDLE mutex = engine->getGUI()->getLabelsMutex();
+								HANDLE mutex = m_engine->getGUI()->getLabelsMutex();
 								std::ostringstream str;
 								str << m_gesturesAnalyzer->PredictHandPosition( sampleVec);
 								WaitForSingleObject(mutex, INFINITE);
-									engine->getGUI()->getLabels()[2]->setText(str.str());
+									m_engine->getGUI()->getLabels()[2]->setText(str.str());
 								ReleaseMutex(mutex);
 							}
 							
@@ -859,11 +897,29 @@ DWORD WINAPI Main::ThreadTreatementDepthFrame()
 				
 
 				//show image
-				if(engine != NULL && engine->IsRunning())
+				if(m_engine != NULL && m_engine->IsRunning())
 				{
-					cv::Mat littleMat;
-					resize(finalDepth, littleMat, cv::Size(320,240) );
-					engine->getGUI()->setRawImage(littleMat, 2);
+					if(m_engine != NULL && m_engine->IsRunning())
+				{
+					for( int i =0; i < 3; i++)
+					{
+						if(m_bPriorityFrameTab[i])
+						{
+							switch(i)
+							{
+								case 0:
+									m_engine->getGUI()->setRawImage(finalDepth, 0);
+									break;
+								case 1:
+									m_engine->getGUI()->setRawImage(finalDepth, 2);
+									break;
+								case 2:
+									m_engine->getGUI()->setRawImage(finalDepth, 1);
+									break;
+							}
+						}
+					}
+				}
 				}
 
 				sampleVec.clear();
@@ -1182,4 +1238,44 @@ void Main::OnSendTimeoutButton(Bouton pButton)
 	std::vector<GUIObject*> objects = pButton.getAttachedObject();
 	int x = atoi(objects[0]->getTexte().getString().toAnsiString().c_str());
 	m_timeout = x;
+}
+
+void Main::OnStopRecordButton(Bouton pButton)
+{
+	HRESULT hr;
+	hr = WaitForSingleObject(m_hFeaturesRecorderMutex, INFINITE);
+	if(hr == WAIT_OBJECT_0)
+	{
+		if(m_featuresRecorder->IsRecording())
+			m_featuresRecorder->Stop();
+		if(!ReleaseMutex(m_hFeaturesRecorderMutex))
+			return ;
+	}else{printf("KeyboardListener() : Problem waiting for m_hFeaturesRecorderMutex\n"); return ; }
+}
+
+void Main::OnSaveSampleButton(Bouton pButton)
+{
+	HRESULT hr;
+	hr = WaitForSingleObject(m_hDisplayAnimationMutex, INFINITE );
+	if(hr == WAIT_OBJECT_0)
+	{
+		if(m_bDisplayAnimation)
+			m_bDisplayAnimation = ! m_bDisplayAnimation;
+		if(!ReleaseMutex(m_hDisplayAnimationMutex))
+			return ;
+	}else{printf("KeyboardListener() : Problem waiting for m_hDisplayAnimationMutex\n"); return ;}
+}
+
+void Main::OnChangeMainFrameButton(Bouton pButton)
+{
+	for(int i=0; i < 3; i++)
+	{
+		if(m_bPriorityFrameTab[i])
+		{
+			m_bPriorityFrameTab[i] = false;
+			int test = (i+1)%3;
+			m_bPriorityFrameTab[(i+1)%3] = true;
+			return;
+		}		
+	}
 }

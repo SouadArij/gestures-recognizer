@@ -2,7 +2,7 @@
 #include "GUI.h"
 
 
-#define MAINWINDOW_WIDTH 1600
+#define MAINWINDOW_WIDTH 1280
 #define MAINWINDOW_HEIGHT 600
 
 class Engine{

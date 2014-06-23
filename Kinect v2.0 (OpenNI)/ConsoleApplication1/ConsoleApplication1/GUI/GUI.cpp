@@ -152,26 +152,36 @@ void GUI::imgRefresh(int iterator){
 
 	// création d'une matrice RGBA 32 bit artificielle
 	cv::Mat image;
-	if(m_ImageMat[iterator].data != NULL){
-		image = m_ImageMat[iterator];
+	int w,h;
+	if(m_ImageMat[iterator].data != NULL)
+	{
+		w = m_ImageMat[iterator].size().width;
+		h = m_ImageMat[iterator].size().height;
+		sf::Vector2u textSize = m_Textures[iterator]->getSize();
+		if(w > textSize.x || h > textSize.y)
+		{
+			resize(m_ImageMat[iterator], image, cv::Size(320,240) );
+		}
+		else
+		{
+			image = m_ImageMat[iterator];
+		}
 	}
 	else{
-	image = cv::imread("resources/blank.png",CV_LOAD_IMAGE_COLOR);
-	 if(! image.data ) // Check for invalid input
-    {
-        printf("ERREUR: IMREAD\n");
-    }
+		image = cv::imread("resources/blank.png",CV_LOAD_IMAGE_COLOR);
+		if(! image.data ) // Check for invalid input
+		{
+			printf("ERREUR: IMREAD\n");
+		}
 	}
+
 	cv::cvtColor(image, image, CV_RGB2BGRA);
-	
-	int w = image.size().width;
-	int h = image.size().height;
-	this->sf_img.create(w,h,sf::Color::White);
+	w = image.size().width;
+	h = image.size().height;
 
     unsigned char *input = (unsigned char*)(image.data);
 	m_Textures[iterator]->update(input,w,h,0,0);
-	m_RectanglesShapes[iterator]->setTexture(m_Textures[iterator]);
-	
+	m_RectanglesShapes[iterator]->setTexture(m_Textures[iterator]);	
 }
 
 // Passer en paramètre l'image qui va être afficher sur le GUI

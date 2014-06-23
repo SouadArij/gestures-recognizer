@@ -30,7 +30,7 @@ class GesturesAnalyzer
 		HRESULT HandSaveSample(UINT pClasse, string pName, const vector<double>& pSampleVec);
 
 	private:
-		GRT::DTW m_dtw;
+		GRT::GestureRecognitionPipeline m_dtw;
 		GRT::LabelledTimeSeriesClassificationData m_DTWTrainingData;
 		
 		GRT::ANBC m_anbc;

@@ -106,56 +106,72 @@ void Engine::initGUI(){
 	int  w = MAINWINDOW_WIDTH;
 	int  h = MAINWINDOW_HEIGHT;
 	int  p = 10; //padding
-	int b_w = w/6 - p*2; // button width
-	int sender_w = (w/6 - p*2)/2;
-	int b_h = h/8 - p*2;
-	int init_pos = w - 2*b_w - 2*p;
-	int txtbox_w = b_w + 0.5*b_w;
+	int init_pos = 970 +p;
+
+	int b_w = w - init_pos - p*2; // button width
+	int b_h = h/10 - p*2;
+
+	int txtbox_w = b_w/2;
 	int txtbox_h = b_h/2;
+
+	int sender_w = b_w/2;
 	int sender_h = txtbox_h;
+	
+	
 	sf::Font font;
 	if(!font.loadFromFile("resources/sansation.ttf")) printf("echec font load\n");
 	
 	//Création des objets connectés
 	void(Main::*ptr)(Bouton) = &Main::OnRecordGestureButton;
-	Bouton *test  = new Bouton(sf::Vector2f(init_pos,p),sf::Vector2i(b_w ,b_h),"Record Gesture", m_main, ptr);
+	Bouton *test  = new Bouton(sf::Vector2f(init_pos, p+(p+b_h)*0),sf::Vector2i(b_w ,b_h),"Record Gesture", m_main, ptr);
 
 	ptr = &Main::OnRecordPositionButton;
-	Bouton *test2 = new Bouton(sf::Vector2f(init_pos +b_w+p, p),sf::Vector2i(b_w ,b_h),"Record Position", m_main, ptr);
+	Bouton *test2 = new Bouton(sf::Vector2f(init_pos,  p+(p+b_h)*1),sf::Vector2i(b_w ,b_h),"Record Position", m_main, ptr);
 
 	ptr = &Main::OnRecordHandPositionButton;
-	Bouton *test3 = new Bouton(sf::Vector2f(init_pos, h/8 ),sf::Vector2i(b_w ,b_h),"RecordHandPosition", m_main, ptr);
+	Bouton *test3 = new Bouton(sf::Vector2f(init_pos, p+(p+b_h)*2 ),sf::Vector2i(b_w ,b_h),"Record Hand Position", m_main, ptr);
 
 	ptr = &Main::OnGetRecordInfoButton;
-	Bouton *test4 = new Bouton(sf::Vector2f(init_pos+b_w+p, h/8 ),sf::Vector2i(b_w ,b_h),"RecordInfos", m_main, ptr);
+	Bouton *test4 = new Bouton(sf::Vector2f(init_pos,  p+(p+b_h)*3 ),sf::Vector2i(b_w ,b_h),"Record Infos", m_main, ptr);
+
+	ptr = &Main::OnStopRecordButton;
+	Bouton *stopRecord = new Bouton(sf::Vector2f(init_pos, p+(p+b_h)*4),sf::Vector2i(b_w ,b_h),"Stop Recording", m_main, ptr);
+
+	ptr = &Main::OnSaveSampleButton;
+	Bouton *saveSample = new Bouton(sf::Vector2f(init_pos, p+(p+b_h)*5),sf::Vector2i(b_w ,b_h),"Save Sample", m_main, ptr);
+
+	ptr = &Main::OnChangeMainFrameButton;
+	Bouton *changeMainFrame = new Bouton(sf::Vector2f(init_pos, p+(p+b_h)*6),sf::Vector2i(b_w ,b_h),"Change view", m_main, ptr);
 
 	ptr = &Main::OnSendClassTextButton;
-	Bouton *text_sender  = new Bouton(sf::Vector2f(init_pos,h/8 + h/8+(h/16)*0),sf::Vector2i(sender_w,sender_h),"Set Classe", m_main, ptr);
+	Bouton *text_sender  = new Bouton(sf::Vector2f(init_pos, p+(p+b_h)*7),sf::Vector2i(sender_w,sender_h),"Set Classe", m_main, ptr);
+	TextField *textField = new TextField(init_pos +sender_w +p, text_sender->getPosition().y ,txtbox_w,txtbox_h);
 
 	ptr = &Main::OnSendNameTextButton;
-	Bouton *text_sender2 = new Bouton(sf::Vector2f(init_pos,h/8 + h/8+(h/16)*1),sf::Vector2i(sender_w,sender_h),"Set Name", m_main, ptr);
+	Bouton *text_sender2 = new Bouton(sf::Vector2f(init_pos, p+(p+b_h)*8),sf::Vector2i(sender_w,sender_h),"Set Name", m_main, ptr);
+	TextField *textField2= new TextField(init_pos +sender_w +p, text_sender2->getPosition().y ,txtbox_w,txtbox_h);
 
 	ptr = &Main::OnSendTimeoutButton;
-	Bouton *text_sender3 = new Bouton(sf::Vector2f(init_pos,h/8 + h/8+(h/16)*2),sf::Vector2i(sender_w,sender_h),"Set Timeout", m_main, ptr);
+	Bouton *text_sender3 = new Bouton(sf::Vector2f(init_pos, p+(p+b_h)*9),sf::Vector2i(sender_w,sender_h),"Set Timeout", m_main, ptr);
+	TextField *textField3= new TextField(init_pos +sender_w +p, text_sender3->getPosition().y ,txtbox_w,txtbox_h);
+	
+	Label *labelPosition = new Label("POSITION :", sf::Vector2f(20, 500));
+	Label *labelGeste = new Label("GESTE :", sf::Vector2f(20, 530));
+	Label *labelHand = new Label("MAIN :", sf::Vector2f(20, 560));
 
-	TextField *textField = new TextField(init_pos +b_w/2 +p,h/8 + h/8 ,txtbox_w,txtbox_h);
-	TextField *textField2= new TextField(init_pos +b_w/2 +p,h/8 + h/8 + (h/16)*1 ,txtbox_w,txtbox_h);
-	TextField *textField3= new TextField(init_pos +b_w/2 +p,h/8 + h/8 + (h/16)*2 ,txtbox_w,txtbox_h);
-
-	Label *labelPosition = new Label("LABEL", sf::Vector2f(20, 500));
-	Label *labelGeste = new Label("LABEL", sf::Vector2f(20, 530));
-	Label *labelHand = new Label("LABEL", sf::Vector2f(20, 560));
-
-	this->mainGUI->addButton(test);
-	this->mainGUI->addButton(test2);
-	this->mainGUI->addButton(test3);
-	this->mainGUI->addButton(test4);
-	this->mainGUI->addButton(text_sender);
-	this->mainGUI->addButton(text_sender2);
-	this->mainGUI->addButton(text_sender3);
-	this->mainGUI->addTextField(textField);
-	this->mainGUI->addTextField(textField2);
-	this->mainGUI->addTextField(textField3);
+	mainGUI->addButton(test);
+	mainGUI->addButton(test2);
+	mainGUI->addButton(test3);
+	mainGUI->addButton(test4);
+	mainGUI->addButton(saveSample);
+	mainGUI->addButton(stopRecord);
+	mainGUI->addButton(changeMainFrame);
+	mainGUI->addButton(text_sender);
+	mainGUI->addButton(text_sender2);
+	mainGUI->addButton(text_sender3);
+	mainGUI->addTextField(textField);
+	mainGUI->addTextField(textField2);
+	mainGUI->addTextField(textField3);
 	mainGUI->addLabel(labelPosition);
 	mainGUI->addLabel(labelGeste);
 	mainGUI->addLabel(labelHand);

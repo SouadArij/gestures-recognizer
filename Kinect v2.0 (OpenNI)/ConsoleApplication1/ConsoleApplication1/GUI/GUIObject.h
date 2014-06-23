@@ -18,7 +18,6 @@ public:
 	sf::Vector2f getPosition() { return m_position; }
 
 	void setText(std::string pText) { 
-		//temp.assign(pText);
 		m_texte.setString(pText); 
 	}
 
@@ -26,6 +25,5 @@ protected :
 	sf::Text m_texte;
 	std::vector<GUIObject*> m_AttachedObject;
 	sf::Vector2f m_position;
-	//std::string temp;
 };
 
