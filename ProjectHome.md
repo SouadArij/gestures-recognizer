@@ -1,0 +1,1 @@
+Sign language recognition with Kinect and multiple machine learning algorithms
